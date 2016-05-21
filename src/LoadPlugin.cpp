@@ -1,18 +1,9 @@
 class XPlugin;
 
 #if defined(__linux__) || defined(__APPLE__)
-
 #include <dlfcn.h>
-
-using LoadXPlugin = XPlugin* (*)(void);
-using FreeXPlugin = void(*)(const XPlugin*);
-
 #elif defined(_WIN32)
-
 #include <windows.h>
-
-using LoadXPlugin = XPlugin* (*)(void);
-using FreeXPlugin = void(*)(const XPlugin*);
 
 #endif
 
@@ -22,7 +13,8 @@ using FreeXPlugin = void(*)(const XPlugin*);
 
 int main(int argc, char** argv)
 {
-
+	using LoadXPlugin = XPlugin* (*)(void);
+	using FreeXPlugin = void(*)(const XPlugin*);
 
 	if( argc < 2 )
 	{
@@ -35,14 +27,15 @@ int main(int argc, char** argv)
 #if defined(__linux__) || defined(__APPLE__)
 
 	void* handle = dlopen(pluginName, RTLD_LAZY);
+
 	if(!handle)
 	{
 		std::cerr << "Could not load plugin " << pluginName << std::endl;
 		std::cerr << dlerror() <<  std::endl;
 		return EXIT_FAILURE; 
 	}
-	dlerror();
 
+	dlerror();
 
 	LoadXPlugin get_impl = (LoadXPlugin) dlsym(handle, "get_impl");
 	FreeXPlugin free_impl = (FreeXPlugin) dlsym(handle, "free_impl");
@@ -61,8 +54,9 @@ int main(int argc, char** argv)
 	
 	if(!hplugin)
 	{
+		const int errorCode = GetLastError();
 		std::cerr << "Could not load " << pluginPath << std::endl;
-		std::cerr << GetLastError() << std::endl;
+		std::cerr << "Error Code: " << errorCode << std::endl;
 		FreeLibrary(hplugin);
 		return EXIT_FAILURE;
 	}
@@ -73,13 +67,16 @@ int main(int argc, char** argv)
 
 	if (!get_impl || !free_impl)
 	{
+		const int errorCode = GetLastError();
 		std::cerr << "Could not get impl functions from dll " << pluginPath << std::endl;
-		std::cerr << GetLastError() << std::endl;
+		std::cerr << "Error Code: " << errorCode << std::endl;
 		FreeLibrary(hplugin);
 		return EXIT_FAILURE;
 	}
 
 #endif
+
+
 
 	XPlugin* xplugin = get_impl();
 	
