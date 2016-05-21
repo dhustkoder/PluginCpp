@@ -13,6 +13,7 @@ int main(int argc, char** argv)
 	using LoadXPlugin = XPlugin* (*)(void);
 	using FreeXPlugin = void(*)(const XPlugin*);
 
+
 	if( argc < 2 )
 	{
 		std::cout << "give it the path for the XPlugin to load" << std::endl;
@@ -41,6 +42,7 @@ int main(int argc, char** argv)
 	{
 		std::cerr << "Failed to load get_impl/free_impl functions from " << pluginPath << std::endl;
 		std::cerr << error << std::endl;
+		dlclose(hplugin);
 		return EXIT_FAILURE;
 	}
 
@@ -53,7 +55,6 @@ int main(int argc, char** argv)
 		const int errorCode = GetLastError();
 		std::cerr << "Could not load " << pluginPath << std::endl;
 		std::cerr << "Error Code: " << errorCode << std::endl;
-		FreeLibrary(hplugin);
 		return EXIT_FAILURE;
 	}
 
@@ -76,18 +77,18 @@ int main(int argc, char** argv)
 
 	XPlugin* xplugin = get_impl();
 	
-	if (!xplugin)
+	if(xplugin)
+	{	
+		std::cout << "- Plugin Info -" << std::endl;
+		std::cout << "Name: " << xplugin->GetName() << std::endl;
+		std::cout << "Version: " << xplugin->GetVersion() << std::endl;
+		free_impl(xplugin);
+	}
+	else
 	{
-		std::cerr << "XPlugin " << pluginPath << " get_impl returned nullptr" << std::endl;
-		return EXIT_FAILURE;
+		std::cerr << "get_impl returned nullptr" << std::endl;
 	}
 
-	std::cout << "- Plugin Info -" << std::endl;
-	std::cout << "Name: " << xplugin->GetName() << std::endl;
-	std::cout << "Version: " << xplugin->GetVersion() << std::endl;
-	
-
-	free_impl(xplugin);
 
 #if defined(__linux__) || defined(__APPLE__)
 	dlclose(hplugin);
