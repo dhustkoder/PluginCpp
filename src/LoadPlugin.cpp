@@ -1,10 +1,7 @@
-class XPlugin;
-
 #if defined(__linux__) || defined(__APPLE__)
 #include <dlfcn.h>
 #elif defined(_WIN32)
 #include <windows.h>
-
 #endif
 
 #include <iostream>
@@ -26,24 +23,23 @@ int main(int argc, char** argv)
 
 #if defined(__linux__) || defined(__APPLE__)
 
-	void* handle = dlopen(pluginName, RTLD_LAZY);
+	void* hplugin = dlopen(pluginPath, RTLD_LAZY);
 
-	if(!handle)
+	if(!hplugin)
 	{
-		std::cerr << "Could not load plugin " << pluginName << std::endl;
+		std::cerr << "Could not load plugin " << pluginPath << std::endl;
 		std::cerr << dlerror() <<  std::endl;
 		return EXIT_FAILURE; 
 	}
 
-	dlerror();
-
-	LoadXPlugin get_impl = (LoadXPlugin) dlsym(handle, "get_impl");
-	FreeXPlugin free_impl = (FreeXPlugin) dlsym(handle, "free_impl");
+	LoadXPlugin get_impl = (LoadXPlugin) dlsym(hplugin, "get_impl");
+	FreeXPlugin free_impl = (FreeXPlugin) dlsym(hplugin, "free_impl");
 
 	const char* error = dlerror();	
-	if( error != nullptr)
+
+	if( error )
 	{
-		std::cerr << "Failed to load get_impl/free_impl functions from " << pluginName << std::endl;
+		std::cerr << "Failed to load get_impl/free_impl functions from " << pluginPath << std::endl;
 		std::cerr << error << std::endl;
 		return EXIT_FAILURE;
 	}
@@ -76,7 +72,7 @@ int main(int argc, char** argv)
 
 #endif
 
-
+	// finally use the xplugin
 
 	XPlugin* xplugin = get_impl();
 	
@@ -86,15 +82,21 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	std::cout << "Loaded XPlugin: " << xplugin->GetName() << std::endl;
-	xplugin->PrintVersion();
+	std::cout << "- Plugin Info -" << std::endl;
+	std::cout << "Name: " << xplugin->GetName() << std::endl;
+	std::cout << "Version: " << xplugin->GetVersion() << std::endl;
+	
 
 	free_impl(xplugin);
 
+#if defined(__linux__) || defined(__APPLE__)
+	dlclose(hplugin);
+#elif defined(_WIN32)
 	FreeLibrary(hplugin);
+#endif
+
 
 	return EXIT_SUCCESS;
-
 }
 
 

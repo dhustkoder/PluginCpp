@@ -17,11 +17,11 @@ Odin::~Odin()
 
 const char* Odin::GetName() const
 {
-	return "XPLUGIN - ODIN";
+	return _pluginName;
 }
-void Odin::PrintVersion() const
+const char* Odin::GetVersion() const
 {
-	std::cout << "XPLUGIN - ODIN VER 0.1" << std::endl;
+	return _pluginVersion;
 }
 
 

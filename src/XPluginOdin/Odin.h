@@ -8,7 +8,10 @@ public:
 	Odin();
 	~Odin();
 	const char* GetName() const override;
-	void PrintVersion() const override;
+	const char* GetVersion() const override;
+private:
+	static constexpr const char* const _pluginName = "XPlugin - Odin. by whoever";
+	static constexpr const char* const _pluginVersion = "Odin 3.56";
 };
 
 

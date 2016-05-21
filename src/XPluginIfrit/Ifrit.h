@@ -9,8 +9,11 @@ public:
 	Ifrit();
 	~Ifrit();
 	const char* GetName() const override;
-	void PrintVersion() const override;
+	const char* GetVersion() const override;
 
+private:
+	static constexpr const char* const _pluginName = "XPlugin - Ifrit";
+	static constexpr const char* const _pluginVersion = "0.1.5.12";
 };
 
 

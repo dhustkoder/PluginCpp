@@ -14,12 +14,12 @@ Ifrit::~Ifrit()
 
 const char* Ifrit::GetName() const
 {
-	return "XPLUGIN - Ifrit";
+	return _pluginName;
 }
 
-void Ifrit::PrintVersion() const
+const char* Ifrit::GetVersion() const
 {
-	std::cout << "XPLUGIN - Ifrit VER 0.0.12" << std::endl;
+	return _pluginVersion;
 }
 
 
