@@ -33,13 +33,12 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE; 
 	}
 
-	LoadXPlugin get_impl = (LoadXPlugin) dlsym(hplugin, "get_impl");
-	FreeXPlugin free_impl = (FreeXPlugin) dlsym(hplugin, "free_impl");
+	LoadXPlugin get_impl = reinterpret_cast<LoadXPlugin>( dlsym(hplugin, "get_impl") );
+	FreeXPlugin free_impl = reinterpret_cast<FreeXPlugin>( dlsym(hplugin, "free_impl") );
 
-	const char* error = dlerror();	
-
-	if( error )
+	if( !get_impl || !free_impl )
 	{
+		const char* error = dlerror();
 		std::cerr << "Failed to load get_impl/free_impl functions from " << pluginPath << std::endl;
 		std::cerr << error << std::endl;
 		dlclose(hplugin);
@@ -59,13 +58,13 @@ int main(int argc, char** argv)
 	}
 
 
-	LoadXPlugin get_impl = (LoadXPlugin) GetProcAddress(hplugin, "get_impl");
-	FreeXPlugin free_impl = (FreeXPlugin) GetProcAddress(hplugin, "free_impl");
+	LoadXPlugin get_impl = reinterpret_cast<LoadXPlugin>( GetProcAddress(hplugin, "get_impl") );
+	FreeXPlugin free_impl = reinterpret_cast<FreeXPlugin>( GetProcAddress(hplugin, "free_impl") );
 
 	if (!get_impl || !free_impl)
 	{
 		const int errorCode = GetLastError();
-		std::cerr << "Could not get impl functions from dll " << pluginPath << std::endl;
+		std::cerr << "failed to get get_impl/free_impl functions from dll " << pluginPath << std::endl;
 		std::cerr << "Error Code: " << errorCode << std::endl;
 		FreeLibrary(hplugin);
 		return EXIT_FAILURE;
