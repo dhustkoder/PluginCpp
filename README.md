@@ -1,4 +1,4 @@
-Loadin .so and .dll function and classes into your cpp program.
+Loadin .so and .dll functions and classes into your cpp program.
 
 ###compiling with cmake
 1. mkdir build
